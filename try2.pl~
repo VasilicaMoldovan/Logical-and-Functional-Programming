@@ -1,0 +1,84 @@
+%sum(l1..ln = 0, n = 0
+%              l1 + sum(l2..ln), otherwise
+sum([], 0).
+sum([H|T],R) :-
+    sum(T, R1),
+    R is H + R1.
+
+%sumDigits(el) = el, el < 10
+%                el % 10 + sumDigits(el /10), otherwie
+sumDigits(E, R) :-
+    E < 10,
+    R is E.
+sumDigits(E, R) :-
+    Aux is E // 10,
+    sumDigits(Aux, R1),
+    Rest is E mod 10,
+    R is R1 + Rest.
+
+%sumList(l1..ln) = 0, n = 0
+%                 sumDigits(l1) + sumList(l2..ln), otherwise
+sumList([], 0).
+sumList([H|T],R) :-
+    sumList(T, R1),
+    sumDigits(H, Aux),
+    R is Aux + R1.
+
+generateSeq([],[]).
+generateSeq([H|T], [H|R]) :-
+    generateSeq(T, R).
+generateSeq([_|T], R) :-
+    generateSeq(T, R).
+
+%appears(l1..ln, el)
+%diff(l1..ln, r1..rm) = l1 U diff(l2..ln, r1..rm),if l1 is not in r1..rm
+appears([], _, 0).
+appears([E],E, 1).
+appears([E],H, R) :-
+    E \= H,
+    R is 0.
+appears([H|_], E, R) :-
+    H =:= E,
+    R is 1.
+appears([H|T], E, R) :-
+    H \= E,
+    appears(T, E, R).
+
+diff([],[H|T],[]).
+diff([],[],[]).
+diff([H|T],[],[H|T]).
+diff([H|T],[H1|A], R) :-
+    appears([H1|A], H, R1),
+    R1 =:= 1,
+    diff(T,[H1|A], R).
+diff([H|T],[H1|A],R) :-
+    appears([H1|A], H, R1),
+    R1 =:= 0,
+    diff(T, [H1|A], R2),
+    R = [H|R2].
+
+solve([], []).
+solve([H|T], R) :-
+    generateSeq([H|T], R1),
+    diff([H|T],R1, R2),
+    sumList(R1, S1),
+    sumList(R2, S2),
+    S1 =:= S2,
+    R = [R1|R2].
+%solve([H|T], R) :-
+%    generateSeq([H|T], R1),
+%    diff([H|T],R1, R2),
+%    sumList(R1, S1),
+%    sumList(R2, S2),
+%    S1 \= S2,
+%   solve([H|T], R).
+
+
+
+
+
+
+
+
+
+

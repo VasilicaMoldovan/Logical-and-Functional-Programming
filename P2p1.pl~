@@ -1,0 +1,90 @@
+% Write a predicate to remove all occurrences of a certain atom from a
+% list
+%remove(L:list, A:atom, R:list)
+%remove(i, i, o)
+
+%a
+remove([],_,[]).
+remove([H|T],A,R):-
+    H =:= A,
+    remove(T,A,R).
+remove([H|T],A,R):-
+    H =\= A,
+    remove(T,A,R1),
+    R = [H|R1].
+
+%b
+%nrOccurences(L:list, A:atom, R:Integer)
+%nrOccurences(i, i, o)
+
+nrOccurences([],_,0).
+nrOccurences([H|T],E,R) :-
+    H =:= E,
+    nrOccurences(T,E,R1),
+    R is R1 + 1.
+nrOccurences([H|T],E,R) :-
+    H =\= E,
+    nrOccurences(T,E,R).
+
+%createList(A:Integer, B:Integer, R:list)
+%createList(i, i, o)
+
+createList(A,B,R) :-
+    R = [A|B].
+
+%createPairs(L:list, R:list)
+%createPairs(i, o)
+
+createPairs([],[]).
+createPairs([E],[[E,1]]).
+createPairs([H|T], R) :-
+    nrOccurences([H|T], H, NR),
+    createList(H, NR, R1),
+    remove(T, H, T1),
+    createPairs(T1, R2),
+    R = [R1|R2].
+
+
+%removeDouble(L:list, R:list)
+%removeDouble(i, o)
+
+removeDouble([], []).
+removeDouble([E],[E]).
+removeDouble([H|T], R) :-
+    remove(T, H, T1),
+    removeDouble(T1, R1),
+    R = [H|R1].
+
+%minimum(L:list, R:Integer)
+%minimum(i, o)
+
+minimum([],0).
+minimum([E], E).
+minimum([H|T], R) :-
+    minimum(T, R1),
+     H < R1,
+     R is H.
+minimum([H|T], R) :-
+    minimum(T, R1),
+    H >= R1,
+    R is R1.
+
+%sortL(L:list, R:list)
+%sortL(i, o)
+
+sortL([], []).
+sortL([E], [E]).
+sortL([H|T], R) :-
+    minimum([H|T], M),
+    remove([H|T], M, AUX),
+    sortL(AUX, R1),
+    R = [M|R1].
+
+
+
+
+
+
+
+
+

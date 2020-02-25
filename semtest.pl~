@@ -1,0 +1,27 @@
+%The list a1... an is given. Write a predicate to determine all sublists
+% strictly ascending of this list a.
+%
+%find(l1...ln) = [], n = 0
+%                l1 U find(l2..ln), if l1 is a list and l1 is ascending
+%                find(l2..ln), otherwise
+%
+%ascending(l1..ln) = ascending(l2...ln), l1 < l2
+%                    true, n = 0 or n = 1
+
+ascending([], true).
+ascending([_], true).
+ascending([H,H1|T], R) :- H =< H1,
+    ascending([H1|T], R).
+
+find([], []).
+find([H|T], R) :- list(H),
+    ascending(H, R),
+    find(T, R1),
+    R = [H|R1].
+find([H|T], R) :-islist(H) =:= false,
+    find(T, R).
+find([H|T], R) :- list(H),
+    ascending(H, R),
+    R =:= false,
+    find(T, R).
+

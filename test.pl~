@@ -1,0 +1,42 @@
+%Given a numerical linear list consisting of integers,subsitute all the
+%elements from odd positions with the factorial of the position's index
+
+%factorial functions computes the factorial of an integer number
+%factorial(A:Integer, R:Integer)
+%factorial(i, o)
+%factorial(nr) = 1, if nr = 0
+%                nr * factorial(nr - 1), nr >= 1
+
+factorial(0, 1).
+factorial(A, R) :-
+    A >= 1,
+    AUX is A-1,
+    factorial(AUX, R1),
+    R is R1 * A.
+
+%substitute(L:list, P:Integer, R:list)
+%substitute(i, i, o)
+%substitute(l1...ln, p) = [], if n = 0
+%                       factorial(p) U substitute(l2...ln, p+1), if
+%                       p%2=1
+%                       l1 U substitute(l2..ln, p+1), otherwise
+
+substitute([], _, []).
+substitute([H|T], P, R) :-
+    P mod 2 =:= 1,
+    AUX is P+1,
+    substitute(T, AUX, R1),
+    factorial(P, NR),
+    R = [NR|R1].
+substitute([H|T], P, R) :-
+    P mod 2 =:= 0,
+    AUX is P+1,
+    substitute(T, AUX, R1),
+    R = [H|R1].
+
+%substitutePos(L:list, R:list)
+%substitutePos(i, o)
+%substitutePos(l1...ln, R) = substitute(l1...ln, 1, R)
+
+substitutePos(L, R):-
+    substitute(L, 1, R).

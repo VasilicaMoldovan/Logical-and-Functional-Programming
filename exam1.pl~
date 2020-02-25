@@ -1,0 +1,325 @@
+%R1 - 2
+%list_length(i, o)
+%list_length(l1..ln) = 0, n = 0
+%                 1 + length(l2..ln), otherwise
+list_length([], 0).
+list_length([_|T], R) :-
+    list_length(T, R1),
+    R is 1 + R1.
+
+rest(0, 0).
+rest(N, R) :-
+    number(N),
+    R is N mod 2.
+%remove(i, i, o)
+%remove(l1..ln, n) = l1..ln, n = 0
+%                    l1 U remove(l2..ln), n > 0 and l1 is a list,
+%                    length(l1) % 2 = 1
+%                    remove(l2..ln), otherwise
+removeL(L, 0,L).
+removeL(E, _ , R) :-
+    number(E),
+    R1 = [E|R],
+    R = R1.
+removeL([], _, []).
+removeL([H|T], N, R) :-
+    N > 0,
+    is_list(H),
+    list_length(H, L),
+    rest(L, R1),
+    R1 =:= 1,
+    removeL(T, N, R2),
+    R = [H|R2].
+removeL([H|T], N, R) :-
+    N > 0,
+    is_list(H),
+    list_length(H, L),
+    rest(L, R1),
+    R1 =:= 0,
+    N1 is N - 1,
+    removeL(T, N1, R).
+removeL([H|T], N, R) :-
+    N > 0,
+    number(H),
+    removeL(T, N, R2),
+    R = [H|R2].
+
+%R1-3
+%back(l1..ln, s, temp) = [], n = 0
+%                  l1 U back(l2..ln, s, l1 + temp), l1 + temp <= s,
+%                  back(l2..ln, s, temp), l1 + temp > s, temp < s.
+%back(i,i,o)
+back([],_, _, []).
+back([H|_], S, TEMP, R) :-
+    A is H + TEMP,
+    A =:= S,
+    R = [H].
+back([H|T], S, TEMP, R) :-
+    A is H + TEMP,
+    A < S,
+    back(T, S, A, R1),
+    R = [H|R1].
+back([H|T], S, TEMP, R) :-
+    A is H + TEMP,
+    A < S,
+    back(T, S, A, R).
+back([_|T], S, TEMP, R) :-
+    back(T, S, TEMP, R).
+
+sum([], 0).
+sum([H|T], R) :-
+    sum(T, R1),
+    R is H + R1.
+oneSol(L, S, R) :-
+    back(L, S, 0, R),
+    sum(R, A),
+    A =:= S.
+
+wrapper([], _, []).
+wrapper(L, S, R) :-
+    is_list(L),
+    findall(RPartial, oneSol(L, S, RPartial), R).
+
+%R2-2
+%appears(l1..ln, el) = 1 + appears(l2..ln), l1 = el
+%                      0, n = 0
+%                      appears(l2..ln), otherwise
+appears([], _, 0).
+appears([H|T], E, R):-
+    H =:= E,
+    appears(T, E, R1),
+    R is 1 + R1.
+appears([H|T], E, R):-
+    H =\= E,
+    appears(T, E, R).
+
+%makeSet(l1...ln, r1..rm) = [], n = 0
+%                          l1 U makeSet(l2..ln, r1..rm U l1),
+%                          appears(r1..rm, l1) = 0
+%                          makeSet(l2..ln, r1..rm U l1),
+%                          appears(r1..rm, l1) > 0
+%makeSet(i,i,o)
+makeSet([], [_], []).
+makeSet(T, L, R) :-
+    number(T),
+    appears(L, T, A),
+    A =:= 0,
+    R = [T].
+makeSet([H|T], L, R) :-
+    appears(L, H, A),
+    A =:= 0,
+    makeSet(T, [H|L], R1),
+    R = [H|R1].
+makeSet([H|T], L, R) :-
+    appears(L, H, A),
+    A > 0,
+    makeSet(T, L, R).
+
+wrapp(L, R) :-
+    makeSet(L, [], R).
+
+%R2-p3
+subsets(0, _ ,[]).
+subsets(N, L ,[H|T]):-
+    N > 0,
+    N1 is N-1,
+    delete(H, L, Rest),
+    subsets(N1, Rest, T).
+
+product([], 1).
+product([H|T], R) :-
+    product(T, R1),
+    R is H * R1.
+
+%oneSol1(L, P, R) :-
+  %  subsets(L, R),
+%    product(R, P1),
+%    P =:= P1.
+
+%final(L, P, R) :-
+%    findall(R1, oneSol1(L, P, R1), R).
+%
+%
+%
+deleteEl([H|T], H, T).
+deleteEl([H|T], X, [H|R]):-
+    deleteEl(T, X, R).
+
+perm([], []).
+perm(L,[H|R]):-
+    deleteEl(L, H, R1),
+    perm(R1,R).
+
+check([], 0).
+check([H,T], R) :-
+    number(H),
+    number(T),
+    A is H - T,
+    abs(A) =< 3,
+    R is 0.
+check([H1,H2|_], R) :-
+    A is H1 - H2,
+    abs(A) > 3,
+    R is 1.
+check([H1, H2|T], R) :-
+    A is H1 - H2,
+    abs(A) =< 3,
+    check([H2|T], R).
+
+findOnePerm(L, R) :-
+    perm(L, R),
+    check(R, R1),
+    R1 =:= 0.
+
+solve(L, R) :-
+    findall(R1, findOnePerm(L, R1), R).
+
+%R3-p3
+%generate(N:Integer, P:Integer, R:list)
+generate(N, P, []) :-
+    P is 2 * N,
+    !.
+generate(N, P, [P|R]) :-
+    P1 is P + 1,
+    generate(N, P1, R).
+
+
+deleteE([H|T], H, T).
+deleteE([H|T], X, [H|R]):-
+    deleteE(T, X, R).
+
+perm1([], []).
+perm1(L,[H|R]):-
+    deleteE(L, H, R1),
+    perm1(R1,R).
+
+check1([], 0).
+check1([H,T], R) :-
+    number(H),
+    number(T),
+    A is H - T,
+    abs(A) =< 2,
+    R is 0.
+check1([H1,H2|_], R) :-
+    A is H1 - H2,
+    abs(A) > 2,
+    R is 1.
+check1([H1, H2|T], R) :-
+    A is H1 - H2,
+    abs(A) =< 2,
+    check1([H2|T], R).
+
+
+findOne(N, R) :-
+    generate(N, N, L),
+    perm(L, R),
+    check(R, R1),
+    R1 =:= 0.
+
+sol(N, R) :-
+    findall(R1, findOne(N, R1), R).
+
+f([], 0).
+f([H|T], S) :-
+    f(T, S1),
+    S1 < H,
+    !,
+    S is H.
+f([_|T], S) :-
+    f(T, S1),
+    S is S1.
+
+subset([], []).
+subset([H|T], [H|R]) :-
+    subset(T, R).
+subset([_|T], R) :-
+    subset(T, R).
+
+getSum([], 0).
+getSum([H|T], S) :-
+    getSum(T, S1),
+    number(H),
+    S is S1 + H.
+getSum([H|T], S) :-
+    getSum(T, S1),
+    atom(H),
+    S is S1.
+
+r3p4(L, S, R) :-
+    subset(L, R),
+    getSum(R, S1),
+    S1 =:= S.
+
+r3p4final(L, S, R) :-
+    findall(R1, r3p4(L, S, R1), R).
+
+arr(L, N, [H|T]) :-
+    N > 1,
+    select(H, L, M),
+    N1 is N - 1,
+    arr(M, N1, T).
+arr(L, 1, [X]) :-
+    member(X, L).
+
+arrWithSum(L, N, S, R) :-
+    arr(L, N, R),
+    getSum(R, S1),
+    S1 =:= S.
+
+arrangements(L, N, S, R) :-
+    findall(R1, arrWithSum(L, N, S, R1), R).
+
+
+insert(L, E, [E|L]).
+insert([H|T], E, R) :-
+	insert(T, E, R1),
+	R = [H|R1].
+
+perm5([], []).
+perm5([H|T], R) :-
+	perm5(T, R1),
+	insert(R1, H, R).
+
+
+comb(_, 0, []).
+comb([H|T], K, [H|T1]) :-
+	K > 0,
+	K1 is K - 1,
+	comb(T, K1, T1).
+comb([_|T], K, R) :-
+	K > 0,
+	comb(T, K, R).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

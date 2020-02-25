@@ -1,0 +1,78 @@
+%Write a predicate to determine the lowest common multiple of a list
+% formed from integer numbers
+% gcd(a:int, b:int, c:int)
+% a,b - the numbers for which we compute the gcd
+% c - the result(the gcd of a and b)
+
+gcd(A,0,R) :-
+    R = A.
+gcd(A,B,R) :-
+    C is A mod B,
+    gcd(B,C,R).
+
+%lcm(a:int, b:int, c:int)
+%a,b - the numbers for which we compute the lcm
+%c - the result(the lcm of a and b)
+
+lcm(0,0,0).
+lcm(A,B,R) :-
+    gcd(A,B,C),
+    R is A*B/C.
+
+%lcmList(L:list, R:int)
+%L - the list for which we determine the lcm of its elements
+%R - the result
+
+lcmList([],1).
+lcmList([H|T],R) :-
+    lcmList(T,R2),
+    lcm(H,R2,R).
+
+
+% Write a predicate to add a value v after 1-st, 2-nd, 4-th, 8-th, ...
+% element in a list
+% addValue(l:list, val:int, position:int, cnt:int, R:list)
+% addValue(l1..ln, value, position, cnt) = [], n = 0
+%                                     l1 + value + addValue(l2..ln,
+%                                     value, position * 2, cnt + 1), cnt
+%                                     = position,
+%                                     l1 + addValue(l2..ln, value,
+%                                     position, cnt + 1), cnt !=
+%                                     position
+%addValue(i, i, i, i, 0)
+addValue([],_,_,_,R):-
+    R = [].
+addValue([H|T],V,POS,CNT,[H,V|R]) :- CNT =:= POS,
+    NPOS is POS * 2,
+    NCNT is CNT + 1,
+    addValue(T,V,NPOS,NCNT,R).
+addValue([H|T],V,POS,CNT,[H|R]) :- POS =\= CNT,
+    NCNT is CNT + 1,
+    addValue(T,V,POS,NCNT,R).
+
+%insert(L:list, V:number, R:list)
+%insert(i, i, 0)
+insert(L,V,R) :- addValue(L, V, 1, 1, R).
+pam([H|T],R) :-
+    R = [H|T].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

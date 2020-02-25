@@ -1,0 +1,111 @@
+insert(L, E, [E|L]).
+insert([H|T], E, R) :-
+	insert(T, E, R1),
+	R = [H|R1].
+
+perm([], []).
+perm([H|T], R) :-
+	perm(T, R1),
+	insert(R1, H, R).
+
+check([], 1).
+check([_], 1).
+check([H1,H2|T], R) :-
+    H is H1 - H2,
+    abs(H) =< 3,
+    check([H2|T], R).
+check([H1,H2|_], R) :-
+    H is H1 - H2,
+    abs(H) > 3,
+    R is 0.
+
+findOneSol(L, R) :-
+    perm(L, R),
+    check(R, S),
+    S =:= 1.
+
+solve(L, R) :-
+    findall(R1, findOneSol(L, R1), R).
+
+
+comb(_, 0, []).
+comb([H|T], K, [H|T1]) :-
+    K > 0,
+    K1 is K - 1,
+    comb(T, K1, T1).
+comb([_|T], K, R) :-
+    K >0,
+    comb(T, K, R).
+
+arr(L, K, R) :-
+    comb(L, K, R1),
+    perm(R1, R).
+
+getSum([], 0).
+getSum([H|T], S) :-
+    getSum(T, S1),
+    S is H + S1.
+
+checkOne(L, K, S, R) :-
+    arr(L, K, R),
+    getSum(R, S1),
+    S1 =:= S.
+
+getAll(L, K, S, R) :-
+    findall(R1, checkOne(L, K, S, R1), R).
+
+
+boom([], 0).
+boom([H|T], S) :-
+    boom(T, S1),
+    S1 is S - H.
+
+%f(i, o)
+f([], []).
+f([H|T], [H|S]) :-
+	f(T, S).
+f([H|T], S) :-
+	H mod 2 =:= 0,
+	f(T, S).
+
+p(1).
+p(2).
+q(1).
+q(2).
+r(1).
+r(2).
+s :- !,
+  p(X),
+  q(Y),
+  r(Z),
+  %write(X,Y,Z),
+  nl.
+%a(X, Y) :-
+% write(X, Y).
+
+subsets([], []).
+subsets([H|T], [H|R]) :-
+	subsets(T, R).
+subsets([_|T], R) :-
+	subsets(T, R).
+
+length1([], 0).
+length1([_|T], R) :-
+	length(T, R1),
+	R is 1 + R1.
+
+findOneSubset(L, R) :-
+	subsets(L, R1),
+	length1(R1, N),
+	N mod 2 =:= 0,
+	R is R1.
+
+findAll(L, R) :-
+	findall(R1, findOneSubset(L, R1), R).
+
+
+
+
+
+
+
